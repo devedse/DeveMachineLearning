@@ -8,8 +8,10 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace DeveMachineLearning
 {
@@ -105,7 +107,7 @@ namespace DeveMachineLearning
 
             var network = NetworkBuilder.BuildNetwork(networkShape, Activations.TANH, Activations.TANH, null, inputIds, false);
 
-
+            var w = Stopwatch.StartNew();
 
             for (int i = 0; i < 100000; i++)
             {
@@ -125,8 +127,13 @@ namespace DeveMachineLearning
 
 
                 Console.WriteLine($"{i}: LossTrain: {lossTrain} LossTest: {lossTest}");
-                MLImager.SaveAsImage(network, state, size);
+              
 
+                if (w.Elapsed.TotalSeconds > 1)
+                {
+                    MLImager.SaveAsImage(network, state, size);
+                    w.Restart();
+                }
 
 
 
