@@ -57,27 +57,10 @@ namespace DeveMachineLearning
             var lijstje = DataSetGenerator.Generate();
 
 
-            int size = 100;
+            int size = 500;
             var img = new Image<Rgba32>(size, size);
 
-            foreach (var pnt in lijstje)
-            {
-                var pntX = ((pnt.X + 1.0) / 2.0) * size;
-                var pntY = ((pnt.Y + 1.0) / 2.0) * size;
-
-                int pntXInt = (int)pntX;
-                int pntYInt = (int)pntY;
-
-                if (pnt.PuntType == PuntType.Oranje)
-                {
-
-                    img[pntXInt, pntYInt] = new Rgba32(255, 0, 0);
-                }
-                else
-                {
-                    img[pntXInt, pntYInt] = new Rgba32(0, 0, 255);
-                }
-            }
+            MLImager.AddPointsToImage(img, lijstje);
 
             using (var fs = new FileStream("output.png", FileMode.Create, FileAccess.Write, FileShare.Read))
             {
@@ -127,11 +110,24 @@ namespace DeveMachineLearning
 
 
                 Console.WriteLine($"{i}: LossTrain: {lossTrain} LossTest: {lossTest}");
-              
+
 
                 if (w.Elapsed.TotalSeconds > 1)
                 {
-                    MLImager.SaveAsImage(network, state, size);
+                    var img2 = MLImager.GenerateImage(network, state, size);
+                    MLImager.AddPointsToImage(img2, lijstje);
+
+                    try
+                    {
+                        using (var fs = new FileStream("output2.png", FileMode.Create, FileAccess.Write, FileShare.Read))
+                        {
+                            img2.SaveAsPng(fs);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
                     w.Restart();
                 }
 
@@ -174,7 +170,7 @@ namespace DeveMachineLearning
 
 
 
-       
+
     }
 }
 

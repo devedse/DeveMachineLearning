@@ -1,6 +1,12 @@
 ﻿using DeveMachineLearning.ML;
+using DeveMachineLearning.MLImplementers;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Processing.Drawing;
+using SixLabors.ImageSharp.Processing.Drawing.Brushes;
+using SixLabors.ImageSharp.Processing.Drawing.Pens;
+using SixLabors.ImageSharp.Processing.Text;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,7 +16,7 @@ namespace DeveMachineLearning.MLHelpers
 {
     public static class MLImager
     {
-        public static void SaveAsImage(List<List<Node>> network, Dictionary<string, bool> state, int size)
+        public static Image<Rgba32> GenerateImage(List<List<Node>> network, Dictionary<string, bool> state, int size)
         {
             var img2 = new Image<Rgba32>(size, size);
             for (int x = 0; x < size; x++)
@@ -40,17 +46,42 @@ namespace DeveMachineLearning.MLHelpers
                     //var pntY = ((pnt.Y + 1.0) / 2.0) * size;
                 }
             }
-            try
-            {
-                using (var fs = new FileStream("output2.png", FileMode.Create, FileAccess.Write, FileShare.Read))
-                {
-                    img2.SaveAsPng(fs);
-                }
-            }
-            catch (Exception ex)
-            {
 
+            return img2;
+        }
+
+        public static void AddPointsToImage(Image<Rgba32> image, List<Puntje> lijstje)
+        {
+            foreach (var pnt in lijstje)
+            {
+                var pntX = ((pnt.X + 1.0) / 2.0) * image.Width;
+                var pntY = ((pnt.Y + 1.0) / 2.0) * image.Height;
+
+                int pntXInt = (int)pntX;
+                int pntYInt = (int)pntY;
+
+
+                Rgba32 color = Rgba32.Black;
+
+
+                if (pnt.PuntType == PuntType.Oranje)
+                {
+                    color = new Rgba32(255, 128, 0);
+                }
+                else
+                {
+                    color = new Rgba32(0, 0, 255);
+                }
+
+                var pen = Pens.Solid(Rgba32.White, 2);
+                var poly = new SixLabors.Shapes.EllipsePolygon((float)pntX, (float)pntY, 3);
+                image.Mutate(t => t.Fill(color, poly));
+                image.Mutate(t => t.Draw(pen, poly));
+
+
+                image[pntXInt, pntYInt] = color;
             }
+
         }
     }
 }
